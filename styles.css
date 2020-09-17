@@ -15,8 +15,8 @@ h2 {
 }
 
 img {
-	max-width: 250px;
-	max-height: 150px;
+	max-width: 185px;
+	max-height: 85px;
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
@@ -29,8 +29,8 @@ a {
 .box{
 	background-color: #eeeeee;
 	border-radius: 7px;
-	width: 280px;
-	height: 280px;
+	width: 215px;
+	height: 215px;
 	padding: 20px;
 	margin-right: 10px;
 	margin-bottom: 10px;
