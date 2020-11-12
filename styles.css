@@ -37,11 +37,11 @@ a {
 }
 
 .page{
-	background-color: #e6e6e6;
+	background-color: #eeeeee;
 	border-radius: 7px;
 	width: 200px;
 	height: 50px;
-	padding: 20px;
+	padding: 5px;
 	margin-right: 10px;
 	margin-bottom: 10px;
 }
