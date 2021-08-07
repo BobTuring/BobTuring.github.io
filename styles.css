@@ -30,15 +30,17 @@ a {
 	display: grid;
 	grid-template-columns: repeat(5, 1fr);
 	grid-gap: 10px;
+	width: 100%;
+	padding: 20px;
 }
 
 .grid a{
 	background-color: #eeeeee;
 	border-radius: 7px;
-	width: 200px;
+	/*width: 200px;
 	height: 200px;
 	padding: 20px;
-	/*margin-right: 10px;
+	margin-right: 10px;
 	margin-bottom: 10px;*/
 }
 
