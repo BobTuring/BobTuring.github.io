@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Testing Greaterer</title>
+  <!-- <link rel="stylesheet" href="testing.css" /> -->
+  <!-- <script src="testing.js" defer></script> -->
+  <!-- <script src="imagesConcept.js" defer></script> -->
+  <style>
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    #slideArea,
+    #slideArea img,
+    #slideArea .middleman {
+      max-width: 100%;
+      max-height: 100vh;
+      aspect-ratio: 16/9;
+      border: none;
+    }
+
+    #slideArea {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    iframe {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- <canvas id="canvas" width="200" height="100"></canvas> -->
+  <p id="hideWithJs" style="text-align: center; font-weight: 700; font-size: 2rem;">Ack! This browser does not support
+    Javascript! Try <a
+      href="https://docs.google.com/presentation/d/1SS-9nbWcCs5O3jzn6A5WB04mrOQrD7xuqwOLp8esFPU/view">Contingency 1</a>.
+  </p>
+  <div id="slideArea"></div>
+  <script>
+    document.getElementById("hideWithJs").style.display = "none";
+    var slideArea = document.querySelector("#slideArea");
+    const jason = {
+      "settings": {
+        "fps": 30,
+        "endearlydefault": false,
+        "prefilepath": "",
+        "fileending": ".jpg",
+        "naturalnumbers": true,
+        "forwardkeys": [" ", "ArrowRight", "ArrowDown"],
+        "backkeys": ["ArrowLeft", "ArrowUp"],
+        "contingencies": [
+          {
+            "initiator": "c",
+            "distinguisher": "1",
+            "href": "https://docs.google.com/presentation/d/1SS-9nbWcCs5O3jzn6A5WB04mrOQrD7xuqwOLp8esFPU/view"
+          }
+        ]
+      },
+      "slideset": [
+        {
+          "type": "still",
+          "single": 0
+        },
+        {
+          "type": "transition",
+          "settype": "range",
+          "start": 1,
+          "end": 14
+        },
+        {
+          "type": "still",
+          "single": 15
+        },
+        {
+          "type": "transition",
+          "settype": "range",
+          "start": 16,
+          "end": "208"
+        },
+        {
+          "type": "still",
+          "single": 209
+        }
+      ]
+    };
+
+    // fetch("spinningBall.json")
+    //   .then((json) => json.json())
+    //   .then((response) => startDrawing(response));
+    startDrawing(jason);
+
+    function startDrawing(data) {
+      if (!data.settings.naturalnumbers) {
+        console.warn("natural numbers not enabled (not yet supported). exiting.");
+        return;
+      }
+      console.log(data);
+      const slideSet = data.slideset;
+      const frameDelay = 1000 / data.settings.fps;
+      let slideI = 0;
+      let clearToGo = true;
+      let tryingToNext = false;
+      let tryingToPrevious = false;
+      data.settings.forwardkeys.forEach((key) => {
+        document.addEventListener("keydown", (e) => {
+          if (e.key == key) {
+            e.preventDefault();
+            if (clearToGo) {
+              nextSlide();
+            } else {
+              tryingToNext = true;
+            }
+          }
+        });
+      });
+      slideArea.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (clearToGo) {
+          nextSlide();
+        } else {
+          tryingToNext = true;
+        }
+      });
+      data.settings.backkeys.forEach((key) => {
+        document.addEventListener("keydown", (e) => {
+          if (e.key == key) {
+            e.preventDefault();
+            if (clearToGo) {
+              previousSlide();
+            } else {
+              tryingToPrevious = true;
+            }
+          }
+        });
+      });
+      slideArea.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        if (clearToGo) {
+          previousSlide();
+        } else {
+          tryingToPrevious = true;
+        }
+      });
+      var initiators = [];
+      data.settings.contingencies.forEach((contingency) => {
+        let oneInitiator = {};
+        oneInitiator[contingency.initiator] = false;
+        initiators.push(oneInitiator);
+        document.addEventListener("keydown", (e) => {
+          if (e.key == contingency.initiator) {
+            initiators[contingency.initiator] = true;
+          }
+          if (e.key == contingency.distinguisher && initiators[contingency.initiator]) {
+            window.location.href = contingency.href;
+          }
+        });
+        document.addEventListener("keyup", (e) => {
+          if (e.key == contingency.initiator) {
+            initiators[contingency.initiator] = false;
+          }
+        });
+      });
+      function nextSlide() {
+        if (slideI < slideSet.length - 1) {
+          slideI++;
+          showHideSlides();
+        }
+      }
+      function previousSlide() {
+        if (slideI > 0) {
+          slideI--;
+          showHideSlides(true);
+        }
+      }
+      let transitioninterval;
+      let loopinterval;
+      function showHideSlides(backwardsBool) {
+        if (transitioninterval) {
+          clearInterval(transitioninterval);
+        }
+        if (loopinterval) {
+          clearInterval(loopinterval);
+        }
+        [...slideArea.children].forEach((e) => {
+          e.classList.add("hidden");
+        });
+        let activeSlide = document.getElementById("slide" + slideI);
+        activeSlide.classList.remove("hidden");
+        let slideType = activeSlide.getAttribute("data-slidetype");
+        // console.log(slideType);
+        if (slideType == "transition") {
+          let currentFrame = 1;
+          let nextTransitionFrame = () => {
+            currentFrame++;
+            if (
+              currentFrame ==
+              [...activeSlide.querySelector(".middleman").children].length + 1
+            ) {
+              nextSlide();
+              return;
+            }
+            setToFrame(activeSlide, currentFrame);
+          };
+          if (backwardsBool) {
+            currentFrame = [...activeSlide.querySelector(".middleman").children]
+              .length;
+            nextTransitionFrame = () => {
+              currentFrame--;
+              if (currentFrame == 0) {
+                previousSlide();
+                return;
+              }
+              setToFrame(activeSlide, currentFrame);
+            };
+          }
+          setToFrame(activeSlide, currentFrame);
+          transitioninterval = setInterval(nextTransitionFrame, frameDelay);
+        }
+        if (slideType == "loop") {
+          let currentFrame = 1;
+          setToFrame(activeSlide, currentFrame);
+          let nextLoopFrame = () => {
+            currentFrame++;
+            setToFrame(activeSlide, currentFrame);
+            if (
+              currentFrame ==
+              [...activeSlide.querySelector(".middleman").children].length
+            ) {
+              currentFrame = 0;
+              clearToGo = true;
+              if (tryingToNext) {
+                nextSlide();
+                tryingToNext = false;
+              }
+              if (tryingToPrevious) {
+                previousSlide();
+                tryingToPrevious = false;
+              }
+            } else if (activeSlide.getAttribute("data-endearly") == "false") {
+              clearToGo = false;
+            }
+          };
+          loopinterval = setInterval(nextLoopFrame, frameDelay);
+        }
+      }
+      function setToFrame(element, frame) {
+        [...element.querySelector(".middleman").children].forEach((e) => {
+          e.classList.add("hidden");
+        });
+        element
+          .querySelector(".middleman *:nth-child(" + frame + ")")
+          .classList.remove("hidden");
+      }
+
+      for (
+        let slideGenerationI = 0;
+        slideGenerationI < slideSet.length;
+        slideGenerationI++
+      ) {
+        slideArea.append(generateSlide(slideGenerationI));
+      }
+      showHideSlides();
+
+      function generateSlide(slideWereDrawing) {
+        let slideObject = slideSet[slideWereDrawing];
+        let slideElement = createEl("div", {id: "slide" + slideWereDrawing});
+        if (slideObject.type == "still") {
+          slideElement.append(generateStill(slideObject));
+          slideElement.setAttribute("data-slidetype", "still");
+        }
+        if (slideObject.type == "transition") {
+          slideElement.append(generateTransition(slideObject));
+          slideElement.setAttribute("data-slidetype", "transition");
+        }
+        if (slideObject.type == "loop") {
+          slideElement.append(generateLoop(slideObject));
+          slideElement.setAttribute("data-slidetype", "loop");
+          let endearly = data.settings.endearlydefault;
+          if (existsBool(slideObject.endearly)) {
+            endearly = slideObject.endearly;
+          }
+          slideElement.setAttribute("data-endearly", endearly);
+        }
+        if (slideObject.type == "videoembed") {
+          slideElement.append(generateVideoEmbed(slideObject));
+          slideElement.setAttribute("data-slidetype", "videoembed");
+        }
+        function generateStill(object) {
+          let middleman = createEl("div", {class: "middleman"});
+          middleman.append(
+            createEl("img", {
+              src: imgUrl(object.single, object.externalimages),
+            })
+          );
+          return middleman;
+        }
+        function generateTransition(object) {
+          let middleman = createEl("div", {class: "middleman"});
+          if (object.settype == "range") {
+            for (
+              let transImgIdx = object.start;
+              transImgIdx <= object.end;
+              transImgIdx++
+            ) {
+              middleman.append(
+                createEl("img", {
+                  src: imgUrl(transImgIdx, object.externalimages),
+                  // data_framenumber: transImgIdx - object.start,
+                })
+              );
+            }
+          }
+          if (object.settype == "array") {
+            transitionLength = object.array.length;
+            for (let transImgIdx = 0; transImgIdx < transitionLength; transImgIdx++) {
+              middleman.append(
+                createEl("img", {
+                  src: imgUrl(object.array[transImgIdx], object.externalimages),
+                  // data_framenumber: transImgIdx,
+                })
+              );
+            }
+          }
+          return middleman;
+        }
+        function generateLoop(object) {
+          let middleman = createEl("div", {class: "middleman"});
+          if (object.settype == "range") {
+            for (
+              let transImgIdx = object.start;
+              transImgIdx <= object.end;
+              transImgIdx++
+            ) {
+              middleman.append(
+                createEl("img", {
+                  src: imgUrl(transImgIdx, object.externalimages),
+                  // data_framenumber: transImgIdx - object.start,
+                })
+              );
+            }
+          }
+          if (object.settype == "array") {
+            transitionLength = object.array.length;
+            for (let transImgIdx = 0; transImgIdx < transitionLength; transImgIdx++) {
+              middleman.append(
+                createEl("img", {
+                  src: imgUrl(object.array[transImgIdx], object.externalimages),
+                  // data_framenumber: transImgIdx,
+                })
+              );
+            }
+          }
+          return middleman;
+        }
+        function generateVideoEmbed(object) {
+          let middleman = createEl("div", {class: "middleman"});
+          middleman.append(createEl("iframe", {src: object.url, allow: "autoplay"}));
+          return middleman;
+        }
+        return slideElement;
+      }
+
+      function imgUrl(object, external) {
+        if (external && object.external) {
+          return object.url;
+        } else {
+          return data.settings.prefilepath + object + data.settings.fileending;
+        }
+      }
+    }
+
+    function createEl(elementType, parameters = {}) {
+      const element = document.createElement(elementType);
+      Object.entries(parameters).forEach(([property, value]) => {
+        if (property == "class") {
+          if (Array.isArray(value)) {
+            for (let i = 0; i < value.length; i++) {
+              element.classList.add(value[i]);
+            }
+          } else {
+            element.classList.add(value);
+          }
+          return;
+        }
+        if (property == "text") {
+          element.textContent = value;
+          return;
+        }
+        if (property == "innerHTML") {
+          element.innerHTML = value;
+          return;
+        }
+        if (property == "innerText") {
+          element.innerText = value;
+          return;
+        }
+        if (property.slice(0, 5) == "data_") {
+          element.setAttribute(property.replace("_", "-"), value);
+          return;
+        }
+        element.setAttribute(property, value);
+      });
+      return element;
+    }
+
+    function sleep(duration) {
+      return new Promise((resolve) => {
+        setTimeout(resolve, duration);
+      });
+    }
+
+    function existsBool(thingToCheck, prohibited = []) {
+      if (thingToCheck == undefined || thingToCheck == null) {
+        return false;
+      }
+      for (let i = 0; i < prohibited.length; i++) {
+        if (thingToCheck == toArray(prohibited)[i]) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+  </script>
+</body>
+</html>
