@@ -1,0 +1,52 @@
+:root {
+    --clr-ink: hsl(242, 89%, 25%);
+    --clr-txt: rgb(0, 0, 0);
+  }
+  
+  body {
+    background-color: rgb(241, 239, 228);
+    font-family: "Baskerville", "Times New Roman", Times, serif;
+    font-size: 1.25em;
+    color: var(--clr-txt);
+    margin: 0;
+  }
+  
+  .page {
+    background-color: white;
+    min-height: calc(100vh - 4rem);
+    margin-top: 1rem;
+    max-width: 960px;
+    min-width: 50vw;
+    margin-inline: auto;
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .2);
+    padding-inline: 1in;
+    padding-block: .5in;
+    box-sizing: border-box;
+  }
+  
+  .pageHeader {
+    font-size: 0.9rem;
+    margin-top: -1.5rem;
+    padding-bottom: .5rem;
+  }
+  
+  .pageHeader a {
+    text-decoration: none;
+    color: var(--clr-txt);
+    opacity: .5;
+  }
+  
+  .page .pageHeader:first-child+* {
+    margin-top: 0;
+  }
+  
+  ol#hotkeys * {
+    display: list-item;
+    color: var(--clr-txt);
+    text-decoration: none;
+  }
+  
+  ol#hotkeys *::marker {
+    color: var(--clr-ink);
+    font-weight: bold;
+  }
