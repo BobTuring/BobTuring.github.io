@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="en" data-color-scheme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhoWhereWhen - EOS Drama</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <!-- <link rel="stylesheet" href="index.css"> -->
+  <!-- <script src="user.js" defer></script> -->
+  <!-- <script src="utility.js" defer></script> -->
+  <script src="https://unpkg.com/@popperjs/core@2"></script>
+  <!-- <script src="sound v3.js" defer></script> -->
+  <style>
+    *,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+html {
+  background-color: var(--clr-background-1);
+  color: var(--clr-text-1);
+
+  --mw: var(--vw);
+  --mh: calc(var(--vh) - (var(--bar-height)));
+  /* --mw: 1;
+  --mh: 1; */
+
+  /* distances */
+  --bar-height: 3rem;
+  --tiny-space: 0.1875rem;
+  --little-space: 0.375rem;
+  --medium-space: 0.75rem;
+  --big-space: 1rem;
+
+  /* colors */
+  --clr-text-1: #000000;
+  --clr-text-2: #424242;
+  --clr-text-3: #838383;
+  --clr-line-1: #808080;
+  --clr-line-2: #9f9f9f;
+  --clr-line-3: #b2b2b2;
+  --clr-background-1: #ffffff;
+  --clr-background-1-5: #f2f1f0;
+  --clr-background-2: #e7e6e5;
+  --clr-background-3: #d1d1d1;
+  --clr-background-4: #c9c9c9;
+  --clr-glass: rgba(231, 230, 229, 0.7);
+
+  /* transitions */
+  --transition-1: ease 100ms;
+  --transition-2: ease 200ms;
+  --transition-3: ease 300ms;
+
+  /* other */
+  --line-1: 2px var(--clr-line-1);
+  --line-2: 1px var(--clr-line-2);
+  --line-3: 0.5px var(--clr-line-3);
+}
+
+html[data-color-scheme="dark"] {
+  --clr-text-1: #e3e3e3;
+  --clr-text-2: #c1c1c1;
+  --clr-text-3: #9e9e9e;
+  --clr-line-1: #9e9e9e;
+  --clr-line-2: #5d5d5d;
+  --clr-background-1: #151515;
+  --clr-background-1-5: #2a2a2a;
+  --clr-background-2: #383838;
+  --clr-background-3: #7b7b7b;
+  --clr-glass: rgba(56, 56, 56, 0.7);
+}
+
+/* GLOBAL */
+/**********/
+
+/* Toggle menus */
+.toggle-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--big-space);
+  background-color: var(--clr-background-1);
+  box-shadow: 0 0 1rem var(--clr-background-2);
+  max-width: 16rem;
+  padding: var(--big-space);
+  border-radius: var(--big-space);
+  z-index: 10;
+  position: absolute;
+  top: calc(3rem + var(--little-space));
+  right: var(--big-space);
+}
+
+.toggle-menu[data-state="hidden"] {
+  display: none;
+}
+
+.toggle-menu-label {
+  text-align: center;
+}
+
+.toggle-menu-grid {
+  display: grid;
+  gap: var(--medium-space);
+  /* grid-template-columns: repeat(auto-fit, minmax(4rem, 1fr)); */
+  justify-items: center;
+}
+
+/* Tooltip */
+.tooltip {
+  padding: var(--tiny-space);
+  border-radius: var(--little-space);
+  /* background-color: var(--clr-background-2); */
+  background-color: var(--clr-glass);
+  border: var(--line-3) solid;
+  box-shadow: 0 0 .5rem var(--clr-background-2);
+  color: var(--clr-text-3);
+  /* opacity: 0.5; */
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(10px);
+  display: none;
+  z-index: 10;
+}
+
+.tooltip[data-state="shown"] {
+  display: block;
+}
+
+.tooltip-arrow,
+.tooltip-arrow::before {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--clr-line-3);
+}
+
+.tooltip-arrow {
+  visibility: hidden;
+}
+
+.tooltip-arrow::before {
+  content: '';
+  transform: rotate(45deg);
+  visibility: visible;
+}
+
+.tooltip[data-popper-placement^='top']>.tooltip-arrow {
+  bottom: -4px;
+  clip-path: polygon(-2px 4px, 10px 4px, 10px 10px, -2px 10px);
+}
+
+.tooltip[data-popper-placement^='bottom']>.tooltip-arrow {
+  top: -4px;
+  clip-path: polygon(-2px 4px, 10px 4px, 10px -2px, -2px -2px);
+}
+
+.tooltip[data-popper-placement^='left']>.tooltip-arrow {
+  right: -4px;
+  clip-path: polygon(4px -2px, 4px 10px, 10px 10px, 10px -2px);
+}
+
+.tooltip[data-popper-placement^='right']>.tooltip-arrow {
+  left: -4px;
+  clip-path: polygon(4px -2px, 4px 10px, -2px 10px, -2px -2px);
+}
+
+/* Dropdown */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-outer {
+  border-radius: var(--tiny-space);
+  border: var(--line-2) solid;
+  padding: .25rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.dropdown-outer-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-chevron {
+  margin-inline: var(--little-space);
+  float: right;
+}
+
+.dropdown-inner {
+  display: none;
+  position: absolute;
+  box-shadow: 0 0 .5rem var(--clr-background-3);
+  overflow: scroll;
+  width: max-content;
+  border-radius: var(--tiny-space);
+  background-color: var(--clr-background-1);
+}
+
+.dropdown[data-dropdown-state="opened"] .dropdown-inner {
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-item {
+  padding-right: var(--little-space);
+  padding-left: calc(1ch + 2 * var(--little-space));
+  padding-block: calc(var(--little-space) / 1);
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  gap: var(--medium-space);
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdown-item:hover {
+  background-color: var(--clr-background-1-5);
+}
+
+.dropdown-active::before {
+  content: "✓";
+  position: absolute;
+  transform: translateX(calc(-1ch - var(--little-space)));
+}
+
+.dropdown-inner:not(:hover) .dropdown-active {
+  background-color: var(--clr-background-1-5);
+}
+
+.dropdown-item-note {
+  color: var(--clr-text-3);
+  font-style: italic;
+  font-size: .875rem;
+}
+
+/* Checkbox */
+.checkbox-wrapper {
+  display: flex;
+  gap: var(--little-space);
+  align-items: center;
+}
+
+.checkbox-wrapper input {
+  display: none;
+}
+
+.checkbox {
+  width: 2rem;
+  height: 1rem;
+  background-color: var(--clr-background-2);
+  border-radius: 1000rem;
+  border: var(--clr-background-2) 2px solid;
+  box-sizing: content-box;
+  position: relative;
+  transition: all var(--transition-2);
+}
+
+.checkbox::after {
+  content: "";
+  width: 1rem;
+  height: 1rem;
+  border-radius: 1000rem;
+  background-color: var(--clr-text-3);
+  position: absolute;
+  transform: translateX(0);
+  transition: all var(--transition-2);
+}
+
+input:checked+.checkbox {
+  background-color: var(--clr-text-2);
+  border-color: var(--clr-text-2);
+}
+
+input:checked+.checkbox::after {
+  transform: translateX(100%);
+  background-color: var(--clr-background-1);
+}
+
+/* Button */
+button {
+  appearance: none;
+  color: unset;
+  background-color: unset;
+  border: unset;
+  display: block;
+  padding: unset;
+  font-size: 1rem;
+}
+
+.text-button {
+  background-color: var(--clr-background-2);
+  cursor: pointer;
+  padding: var(--little-space);
+  border-radius: var(--little-space);
+  margin: var(--little-space);
+  transition: background-color var(--transition-2);
+}
+
+.text-button:hover {
+  background-color: var(--clr-background-1-5);
+}
+
+.material-symbols-outlined {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.material-symbols-outlined:is(.little-button, .big-button) {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-variation-settings: "wght" 400;
+}
+
+.material-symbols-outlined.little-button {
+  border-radius: var(--tiny-space);
+  cursor: pointer;
+  transition: background-color var(--transition-1), font-variation-settings var(--transition-2);
+}
+
+.material-symbols-outlined.big-button {
+  border-radius: 50%;
+  padding: var(--little-space);
+  transition: background-color var(--transition-2), font-variation-settings var(--transition-2);
+}
+
+.material-symbols-outlined.little-button:hover,
+.material-symbols-outlined.big-button:hover {
+  background-color: var(--clr-background-2);
+  font-variation-settings: "wght" 550;
+}
+
+/* MAIN GRID LAYOUT */
+/********************/
+#bigContainer {
+  height: 100vh;
+  overflow: hidden;
+  /* display: grid; */
+  /* grid-template-columns: 300px 1fr; */
+  /* grid-template-rows: var(--bar-height) calc(var(--vh) - (var(--bar-height) * 2)) var(--bar-height); */
+}
+
+#main {
+  /* height: calc(var(--vh) - (var(--bar-height))); */
+  height: 100%;
+}
+
+.top-bar {
+  grid-column: 1 / 3;
+  height: var(--bar-height);
+  /* background: var(--clr-background-1); */
+  border-bottom: solid var(--line-1);
+}
+
+.left-bar {
+  border-right: solid var(--line-1);
+}
+
+.content {
+  height: 100%;
+}
+
+/* TOP BAR */
+/***********/
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  padding-inline: 1rem;
+  /* justify-content: space-between; */
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 1.5rem;
+  white-space: nowrap;
+  color: var(--clr-text-1);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: var(--little-space);
+}
+
+.logo-icon {
+  font-size: 1.5rem;
+  font-variation-settings: "FILL" 1, "opsz" 24;
+}
+
+.search {
+  background-color: var(--clr-background-2);
+  padding: var(--little-space);
+  border-radius: var(--little-space);
+  margin-block: var(--tiny-space);
+  margin-inline: 1rem;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  width: 30rem;
+}
+
+.mobile-shade-toggle {
+  display: none;
+}
+
+.right-cluster {
+  display: flex;
+  flex-direction: row-reverse;
+  /* justify-self: stretch; */
+  /* justify-content: flex-end; */
+  margin-left: auto;
+}
+
+.mobile-shade-label {
+  display: none;
+}
+
+.mobile-shade-logo {
+  display: none;
+  align-items: center;
+  font-weight: bold;
+  font-size: 1.25rem;
+  padding-left: 1rem;
+  margin-bottom: .5rem;
+  height: 48px;
+  border-bottom: var(--line-1) solid;
+}
+
+.profile-inner {
+  height: calc(24px + 2 * var(--little-space));
+  width: calc(24px + 2 * var(--little-space));
+  /* background-image: url(https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_960_720.jpg); */
+  /* background-image: url(https://picsum.photos/36); */
+  border-radius: 50%;
+  background-size: cover;
+  margin-left: 2rem;
+  cursor: pointer;
+}
+
+/* PANES AND TABS */
+/******************/
+.pane {
+  --paneWidth: 1;
+  --paneHeight: 1;
+  /* width: calc(var(--mw) * var(--paneWidth)); */
+  /* height: calc(var(--mh) * var(--paneHeight)); */
+  height: 100%;
+}
+
+.pane[data-vertical-tabs="true"] {
+  display: grid;
+  grid-template-columns: 25ch 1fr;
+  grid-template-rows: auto auto;
+}
+
+.tab-bar {
+  background-color: var(--clr-background-2);
+  display: flex;
+  flex-direction: row;
+  --tab-bar-hidden-rotation: 0deg;
+}
+
+.new-tab {
+  align-self: center;
+  border-radius: 50%;
+  margin-right: var(--medium-space);
+  transition: background-color var(--transition-1);
+}
+
+.new-tab:hover {
+  background-color: var(--clr-background-1);
+}
+
+.tab-bar-buttons {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  margin-inline: var(--little-space);
+  gap: var(--little-space);
+  /* justify-self: flex-end; */
+  flex-grow: 1;
+}
+
+.tab-bar-buttons .little-button:hover {
+  background-color: var(--clr-background-1);
+}
+
+.pane[data-vertical-tabs="true"] .tab-bar-buttons {
+  margin-block: var(--little-space);
+  flex-direction: row;
+  order: -1;
+  flex-grow: unset;
+}
+
+.pane[data-tab-bar-hidden="true"] .tab-bar {
+  --tab-bar-hidden-scale-y: 1;
+}
+
+.pane[data-tab-bar-hidden="false"] .tab-bar {
+  --tab-bar-hidden-scale-y: -1
+}
+
+.tab-bar-hidden {
+  transform: rotate(var(--tab-bar-hidden-rotation)) scaleY(var(--tab-bar-hidden-scale-y));
+}
+
+.pane[data-vertical-tabs="true"][data-tab-bar-hidden="true"] {
+  grid-template-columns: min-content 1fr;
+}
+
+.pane[data-vertical-tabs="true"][data-tab-bar-hidden="true"] .tab-bar *:not(.tab-bar-buttons, .tab-bar-hidden, .tab-bar-tabs, .tab, .favicon) {
+  display: none;
+}
+
+.pane[data-vertical-tabs="true"] .tab-bar {
+  height: calc(var(--mh) * var(--paneHeight));
+  flex-direction: column;
+  grid-row: 1 / -1;
+  --tab-bar-hidden-rotation: -90deg;
+}
+
+.tab-bar-tabs {
+  display: flex;
+  align-items: flex-end;
+  /* gap: var(--little-space); */
+  padding-left: var(--little-space);
+  padding-top: var(--tiny-space);
+  padding-right: var(--little-space);
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  max-height: 100%;
+  overflow-x: scroll;
+  /* width: 100%; */
+}
+
+.tab {
+  padding-left: var(--little-space);
+  padding-right: var(--little-space);
+  padding-bottom: var(--little-space);
+  width: 20ch;
+  display: flex;
+  /* justify-content: space-between; */
+  align-items: center;
+  cursor: default;
+  padding-top: var(--little-space);
+  border-top-left-radius: var(--little-space);
+  border-top-right-radius: var(--little-space);
+  transition: background-color var(--transition-2);
+  min-width: 0;
+}
+
+.favicon {
+  height: 1.125em;
+  margin-right: var(--tiny-space);
+}
+
+.favicon.material-symbols-outlined {
+  font-size: 1.125em;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+}
+
+.tab-text {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  margin-right: 0.25rem;
+  mask-image: linear-gradient(to left, rgba(0, 0, 0, 0), 1ch, rgba(0, 0, 0, 1));
+  -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 0), 1ch, rgba(0, 0, 0, 1));
+}
+
+.tab::before {
+  content: "";
+  background-color: var(--clr-line-2);
+  width: 1px;
+  height: 1.2em;
+  position: absolute;
+  transform: translateX(calc(var(--little-space) * -1 - 0.5px));
+  transition: background-color var(--transition-2);
+}
+
+.tab:hover {
+  background-color: var(--clr-background-1-5);
+}
+
+.tab.active-tab {
+  background-color: var(--clr-background-1);
+}
+
+.tab:first-child::before,
+.tab.active-tab::before,
+.tab.active-tab+.tab::before,
+.tab:hover::before,
+.tab:hover+.tab::before {
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.pivot-tabs {
+  justify-self: flex-end;
+  text-align: right;
+}
+
+.pane[data-vertical-tabs="true"] .tab-bar-tabs {
+  flex-direction: column;
+  align-items: start;
+  padding-right: var(--little-space);
+  padding-block: var(--tiny-space);
+  padding-left: 0;
+  grid-row: 1 / -1;
+  /* height: 100%; */
+  width: auto;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.pane[data-vertical-tabs="true"] .tab {
+  border-top-left-radius: 0;
+  border-bottom-right-radius: var(--little-space);
+  width: 100%;
+}
+
+.pane[data-vertical-tabs="true"] .tab::before {
+  display: none;
+}
+
+.tab .close-tab {
+  font-variation-settings: 'fill' 0, 'wght' 400, 'grad' 0, 'opsz' 20;
+  font-size: 1em;
+  border-radius: 50%;
+  transition: background-color var(--transition-1);
+}
+
+.tab .close-tab:hover {
+  background-color: var(--clr-background-3);
+}
+
+.location-bar {
+  border-bottom: solid var(--line-2);
+  display: flex;
+  gap: 1em;
+  align-items: center;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  background-color: var(--clr-background-1)
+}
+
+.location-bar .breadcrumb {
+  display: flex;
+  align-items: center;
+}
+
+.location-bar .location-link {
+  padding: var(--tiny-space);
+  border-radius: var(--tiny-space);
+  margin: var(--little-space);
+  cursor: pointer;
+  transition: background-color var(--transition-2);
+}
+
+.location-bar .location-link.home {
+  padding: 0;
+}
+
+.location-bar .scroll-location {
+  padding: var(--tiny-space);
+  margin: var(--tiny-space);
+}
+
+.location-bar .location-link:hover {
+  background: var(--clr-background-2);
+}
+
+.location-bar .separator {
+  font-size: 1.2em;
+  cursor: default;
+}
+
+.tab-content {
+  height: 100vh;
+  overflow: scroll;
+  padding: 1rem;
+}
+
+/* HOME PAGE */
+/*************/
+.projects-grid {
+  display: grid;
+  gap: var(--medium-space);
+  grid-template-columns: repeat(auto-fill, minmax(30ch, 1fr));
+  margin: var(--medium-space);
+}
+
+.projects-grid-item {
+  background-color: var(--clr-background-1);
+  border: var(--line-2) solid;
+  border-radius: var(--medium-space);
+  text-decoration: none;
+  color: var(--clr-text-1);
+  min-height: 8rem;
+  transition: background-color var(--transition-2);
+}
+
+.add-project {
+  min-height: 8rem;
+  background-color: var(--clr-background-2);
+  border: var(--line-2) dashed;
+  border-radius: var(--medium-space);
+  padding: var(--medium-space);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color var(--transition-2);
+  cursor: pointer;
+}
+
+.projects-grid-item-image {
+  height: 8rem;
+  /* aspect-ratio: 1; */
+  border-top-right-radius: var(--medium-space);
+  border-top-left-radius: var(--medium-space);
+  background-color: var(--clr-background-2);
+  background-size: cover;
+  background-position: center;
+}
+
+.projects-grid-item-bottom {
+  padding: var(--medium-space);
+}
+
+.projects-grid-item:hover,
+.add-project:hover {
+  background-color: var(--clr-background-1-5);
+}
+
+/* PAGE TAB BAR */
+/****************/
+.page {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.page-tab-bar {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: var(--clr-background-2);
+  /* transition: background-color var(--transition-2); */
+}
+
+/* .page-tab-bar:hover {
+  position: fixed;
+  height: 100%;
+} */
+
+.page-tab-bar::before {
+  content: "";
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  box-shadow: 0 0 1rem var(--clr-background-3);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity var(--transition-3);
+}
+
+.page-tab-bar:is(:hover, :focus, :focus-within)::before {
+  opacity: 100%;
+}
+
+.page-tab {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: .75rem;
+  cursor: pointer;
+  background-color: var(--clr-background-2);
+  transition: all var(--transition-2);
+  color: var(--clr-text-1);
+  text-decoration: none;
+  appearance: none;
+  border: none;
+  font-size: 1rem;
+}
+
+.page-tab-text {
+  max-width: 0;
+  overflow: hidden;
+  transition: all var(--transition-3);
+  margin-left: var(--tiny-space);
+}
+
+.page-tab:is(:hover, :focus) {
+  background-color: var(--clr-background-1-5);
+}
+
+.page-tab-bar:is(:hover, :focus, :focus-within) .page-tab-text {
+  max-width: 10rem;
+}
+
+.page-tab .material-symbols-outlined {
+  font-variation-settings: "wght" 400, "opsz" 24;
+  transition: all var(--transition-2);
+}
+
+.page-tab:is(:hover, :focus) .material-symbols-outlined {
+  font-variation-settings: "wght" 550, "opsz" 24;
+}
+
+.page-tab.tab-active {
+  background-color: var(--clr-background-1);
+}
+
+.content {
+  width: 100%;
+  padding: 1rem;
+}
+
+.page:has(.home-header) .page-tab-bar,
+.page:has(.home-grid) .page-tab-bar {
+  display: none;
+}
+
+/* SCRIPT */
+/**********/
+.script {
+  margin-top: 1rem;
+  width: 50%;
+  margin-inline: auto;
+  font-family: serif;
+}
+
+.script-editor-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--little-space);
+  padding: var(--little-space);
+  border-radius: var(--little-space);
+  width: calc(50% + 2 * var(--little-space));
+  margin: auto;
+  box-shadow: 0 0 1rem var(--clr-background-2);
+  /* position: fixed;
+  left: 50%;
+  transform: translateX(-50%); */
+}
+
+.happening-type-selector {
+  flex-grow: 1;
+  align-self: stretch;
+}
+
+/* TODO: doesn't properly elipsis at small sizes */
+.happening-type-selector .dropdown-outer {
+  max-width: 18ch;
+}
+
+.script-editor-bar .little-button {
+  padding: var(--tiny-space);
+}
+
+.tooltip-container {
+  position: absolute;
+}
+
+.speaker-tooltip {
+  /* position: absolute; */
+  border: 1px solid grey;
+  border-radius: 5px;
+  background-color: white;
+  padding: .5rem;
+  opacity: 1;
+  animation: tooltip 1.25s;
+}
+
+@keyframes tooltip {
+  0% {
+    opacity: 0;
+  }
+
+  80% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* CHARACTERS */
+/**************/
+.character-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(30ch, 1fr));
+  gap: 1rem;
+}
+
+.new-character {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: var(--clr-background-1-5);
+  border: var(--line-2) dashed;
+  border-radius: .5rem;
+  cursor: pointer;
+  transition: all ease 150ms;
+}
+
+.new-character:hover {
+  background-color: var(--clr-background-2);
+}
+
+.character-card {
+  border: var(--line-2) solid;
+  border-radius: .5rem;
+  padding: 1rem;
+  transition: all 150ms;
+}
+
+.character-card:hover {
+  background-color: var(--clr-background-1-5);
+}
+
+.character-pronouns {
+  color: var(--clr-text-3);
+  font-size: .75rem;
+  font-style: italic;
+}
+
+/* SOUND */
+/*********/
+.custom-timeline {
+  background-color: var(--clr-text-2);
+  width: 100%;
+  height: 1rem;
+  position: relative;
+  border-radius: var(--little-space);
+  margin-block: var(--little-space);
+}
+
+.custom-timeline-progress-bar {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: absolute;
+  border-radius: var(--little-space);
+}
+
+.custom-timeline-progress-bar::after {
+  content: "";
+  background-color: var(--clr-text-3);
+  display: block;
+  height: 100%;
+  width: 0;
+  width: var(--percent);
+  box-shadow: 0 0 7px var(--clr-text-1);
+}
+
+.custom-timeline>.custom-timeline-marker {
+  width: 8px;
+  height: 100%;
+  border-left: 2px solid var(--clr-background-1);
+  position: absolute;
+  left: var(--position);
+}
+
+.custom-timeline-marker:hover::after {
+  content: attr(data-marker-text);
+  background-color: var(--clr-background-1);
+  color: var(--clr-text-1);
+  position: relative;
+  top: calc(100% + var(--tiny-space));
+  padding: var(--tiny-space);
+  border-radius: var(--little-space);
+  border-top-left-radius: 0;
+}
+
+.sound-visual-container {
+  display: grid;
+  gap: var(--medium-space);
+  grid-template-columns: 1rem 4rem 1fr;
+  border-radius: var(--medium-space);
+  padding: var(--medium-space);
+  background-color: var(--clr-background-2);
+}
+
+.sound-visual-title {
+  grid-column: 1/4;
+}
+
+.sound-visual-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--little-space);
+}
+
+.sound-component-container {
+  display: flex;
+  /* gap: var(--medium-space); */
+  /* width: 100%; */
+  overflow: auto;
+  white-space: nowrap;
+}
+
+.sound-component {
+  border: var(--line-2) solid;
+  border-radius: var(--little-space);
+  padding: var(--little-space);
+  min-width: 18ch;
+  display: flex;
+  flex-direction: column;
+}
+
+.sound-component[data-sound-component-type="multipleexits"] {
+  min-width: 36ch;
+}
+
+.sound-component-name {
+  display: flex;
+  gap: var(--tiny-space);
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sound-component-name .material-symbols-outlined {
+  font-size: 1.25em;
+  font-variation-settings: "opsz" 20, "GRAD" 150;
+}
+
+.sound-component-duration {
+  font-size: 0.875rem;
+  color: var(--clr-text-3);
+}
+
+.sound-component-timeline {
+  width: 100%;
+}
+
+.sound-component-state {
+  color: var(--clr-text-2);
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.sound-component-arrow {
+  align-self: center;
+}
+
+.sound-button {
+  border-radius: 1000rem;
+  background-color: var(--clr-background-3);
+  padding: var(--tiny-space);
+  transition: background-color var(--transition-2);
+  cursor: pointer;
+}
+
+.sound-button:hover {
+  background-color: var(--clr-background-4);
+}
+
+input#volumeControl {
+  appearance: slider-vertical;
+}
+
+/* @media (max-width: 600px) {
+  .logo .logo-text {
+    display: none;
+    pointer-events: none;
+  }
+
+  .mobile-shade-toggle {
+    display: inline-block;
+  }
+
+  .right-cluster.shown {
+    display: flex;
+  }
+
+  .right-cluster {
+    display: none;
+    flex-direction: column;
+    background-color: var(--clr-background-1);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    width: 100%;
+    padding-bottom: 2rem;
+    box-shadow: 0 0 2rem var(--clr-text-2), 0 0 0 100vh rgba(0, 0, 0, .6);
+  }
+
+  .mobile-shade-toggle:has(+.right-cluster.shown) {
+    z-index: 3;
+  }
+
+  .mobile-shade-outer {
+    display: flex;
+    align-items: center;
+    gap: var(--little-space);
+    padding-inline: 1rem;
+    padding-block: .5rem;
+  }
+
+  .mobile-shade-outer:is(:hover, :focus, :focus-within) {
+    background-color: var(--clr-background-1-5);
+  }
+
+  .mobile-shade-logo {
+    display: flex;
+  }
+
+  .profile-outer {
+    position: relative;
+  }
+
+  .profile-outer::after {
+    content: "";
+    width: calc(100% - 2rem);
+    border-bottom: var(--line-2) solid;
+    position: absolute;
+    bottom: 0;
+  }
+
+  .mobile-shade-label {
+    display: block;
+  }
+
+  .profile-inner {
+    margin-left: 0;
+  }
+} */
+
+@media (max-width: 425px) {
+  .character-card-grid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .page-tab-bar {
+    position: absolute;
+    left: 1rem;
+    bottom: 1rem;
+    background: none;
+  }
+
+  .page-tab {
+    border-radius: 24px;
+    box-shadow: 0 0 .5rem var(--clr-background-3);
+    gap: 0;
+  }
+
+  .page-tab:not(.tab-active) {
+    display: none;
+  }
+}
+  </style>
+</head>
+<body>
+  <div id="bigContainer" class="big-container">
+    <div id="topBar" class="top-bar">
+      <!-- <a href="/" class="logo">
+        <span class="logo-icon material-symbols-outlined">home</span>
+        <span class="logo-text">EOS Drama</span>
+      </a> -->
+      <!-- <div class="search">Search</div> -->
+      <button class="mobile-shade-toggle material-symbols-outlined big-button" onclick="toggleMobileShade()">menu</button>
+      <div class="right-cluster" id="mobileShade">
+        <!-- <div class="mobile-shade-logo">EOS Drama</div> -->
+        <!-- <div onclick="toggleProfileMenu()" class="mobile-shade-outer profile-outer">
+          <div class="profile-inner" style="background-image: url(https://picsum.photos/36);"></div>
+          <div class="mobile-shade-label">Profile</div>
+        </div> -->
+        <!-- <button onclick="toggleSettingsMenu()" class="mobile-shade-outer has-tooltip" aria-describedby="settingsMenuToggleTooltip">
+          <div class="settings-inner material-symbols-outlined big-button">settings</div>
+          <div class="mobile-shade-label">Settings</div>
+        </button>
+        <div class="tooltip" id="settingsMenuToggleTooltip">
+          Settings
+          <div class="tooltip-arrow" data-popper-arrow></div>
+        </div> -->
+        <label class="settings-item darkmode-toggle checkbox-wrapper" onclick="darkModeToggle(this.querySelector('input').checked)">
+          <div class="material-symbols-outlined">dark_mode</div>
+          <input type="checkbox">
+          <span class="checkbox"></span>
+        </label>
+        <!-- <div onclick="toggleAppsMenu()" class="mobile-shade-outer has-tooltip" aria-describedby="appsMenuToggleTooltip">
+          <div class="apps-inner material-symbols-outlined big-button">apps</div>
+          <div class="mobile-shade-label">Apps</div>
+        </div>
+        <div class="tooltip" id="appsMenuToggleTooltip">
+          Apps menu
+          <div class="tooltip-arrow" data-popper-arrow></div>
+        </div> -->
+        <!-- <div onclick="toggleHelpMenu()" class="mobile-shade-outer has-tooltip" aria-describedby="helpMenuToggleTooltip">
+          <div class="help-inner material-symbols-outlined big-button">help</div>
+          <div class="mobile-shade-label">Help</div>
+        </div>
+        <div class="tooltip" id="helpMenuToggleTooltip">
+          Help
+          <div class="tooltip-arrow" data-popper-arrow></div>
+        </div> -->
+      </div>
+      <!-- <div class="toggle-menu settings-menu" id="settingsMenu" data-state="hidden">
+        <div class="toggle-menu-label">Quick Settings</div>
+        <div class="toggle-menu-grid">
+          <label class="settings-item darkmode-toggle checkbox-wrapper" onclick="darkModeToggle(this.querySelector('input').checked)">
+            <div class="material-symbols-outlined">dark_mode</div>
+            <input type="checkbox">
+            <span class="checkbox"></span>
+          </label>
+        </div>
+      </div> -->
+    </div>
+    <main id="main" class="main">
+      <div class="pane" id="PANE">
+        <div class="page">
+          <div class="page-tab-bar">
+            <!-- <% for(let page of pagesList) { %> 
+              <button onclick="pageTabPress({project: '<%= projectId %>', page: '<%= page.name %>', })" class="page-tab <% if (page.name == activePage) { %> tab-active <% } %> ">
+                <div class="material-symbols-outlined"><%= page.icon %></div>
+                <div class="page-tab-text"><%= page.title %></div>
+              </button>
+            <% } %>  -->
+          </div>
+          <div class="content">
+            <div id="soundVisualContainer" class="sound-visual-container">
+              <div id="soundVisualTitle" class="sound-visual-title"></div>
+              <input type="range" id="volumeControl" value="50" orient="vertical">
+              <div id="soundVisualButtons" class="sound-visual-buttons">
+                <button onclick="beginPlayback();" class="sound-button material-symbols-outlined has-tooltip" aria-describedby="playButtonTooltip">play_arrow</button>
+                <div class="tooltip" id="playButtonTooltip">
+                  Play
+                  <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+                <button onclick="advance()" class="sound-button material-symbols-outlined has-tooltip" aria-describedby="advanceButtonTooltip">keyboard_tab</button>
+                <div class="tooltip" id="advanceButtonTooltip">
+                  Next section
+                  <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+                <button onclick="stopSound()" class="sound-button material-symbols-outlined has-tooltip" aria-describedby="stopButtonTooltip">stop</button>
+                <div class="tooltip" id="stopButtonTooltip">
+                  Stop
+                  <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+              </div>
+              <div id="soundComponentContainer" class="sound-component-container"></div>
+            </div>
+            <!-- <div class="custom-timeline" style="--percent: 20%"">
+              <div class="custom-timeline-progress-bar"></div>
+              <div class="custom-timeline-marker" style="--position: 30%"></div>
+            </div> -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+<script>
+  const loopData = {
+    location: "https://bobturing.github.io/files/welcome_tech.mp3",
+    name: "“Welcome welcome”",
+    components: [
+      {
+        name: "Main",
+        type: "multipleexits",
+        start: 0,
+        end: 95.0675,
+        // exits: [
+        //   {
+        //     time: 4.4264,
+        //     goto: "Chaos"
+        //   },
+        //   {
+        //     time: 12.9085,
+        //     goto: "Chaos"
+        //   },
+        //   {
+        //     time: 21.48,
+        //     goto: "Chaos"
+        //   },
+        //   {
+        //     time: 30,
+        //     goto: "Chaos"
+        //   },
+        //   {
+        //     time: 38.6225,
+        //     goto: "Chaos"
+        //   },
+        //   {
+        //     time: 45.2165,
+        //     goto: "Chaos"
+        //   },
+        //   {
+        //     time: 50.671,
+        //     goto: "Chaos"
+        //   },
+        //   {
+        //     time: 56.1255,
+        //     goto: "Chaos"
+        //   },
+        //   {
+        //     time: 60.1475,
+        //     goto: "Chaos"
+        //   },
+        //   {
+        //     time: 60.1475,
+        //     goto: "Chaos"
+        //   },
+        //   {
+        //     time: 60.1475,
+        //     goto: "Chaos"
+        //   },
+        //   {
+        //     time: 69.889,
+        //     goto: "Chaos"
+        //   },
+        //   {
+        //     time: 78.6755,
+        //     goto: "Chaos"
+        //   },
+        //   {
+        //     time: 82.5495,
+        //     goto: "Chaos"
+        //   },
+        //   // {
+        //   //   time: 86.5055,
+        //   //   goto: "Chaos"
+        //   // }
+        // ],
+        exits: [
+          {
+            time: 80.571,
+            goto: "end2"
+          },
+          {
+            time: 82.6315,
+            goto: "end3"
+          },
+          {
+            time: 84.4485,
+            goto: "end2"
+          },
+          {
+            time: 86.505,
+            goto: "end3"
+          },
+          {
+            time: 88.153,
+            goto: "end1"
+          },
+          {
+            time: 89.06,
+            goto: "end1"
+          },
+          {
+            time: 90.1315,
+            goto: "end1"
+          },
+          {
+            time: 91.038,
+            goto: "end1"
+          },
+          {
+            time: 92.1095,
+            goto: "end1"
+          },
+          {
+            time: 93.0985,
+            goto: "end1"
+          },
+          {
+            time: 93.0875,
+            goto: "end1"
+          },
+        ],
+        onend: "end1"
+      },
+      {
+        name: "end1",
+        type: "once",
+        start: 95.0675,
+        end: 98,
+        onend: false
+      },
+      {
+        name: "end2",
+        type: "once",
+        start: 103.176,
+        end: 107.0545,
+        onend: false
+      },
+      {
+        name: "end3",
+        type: "once",
+        start: 109.1925,
+        end: 113,
+        onend: false
+      }
+    ]
+  };
+
+  const audioContext = new AudioContext();
+  fetch(loopData.location)
+    .then(data => data.arrayBuffer())
+    .then(data => audioContext.decodeAudioData(data))
+    .then(data => {window.persistentBuffer = data;});
+
+  const primaryGainControl = audioContext.createGain();
+  primaryGainControl.connect(audioContext.destination);
+  // let audioEl = createEl("audio", {src: loopData.location, id: `${loopData.name.replace(/\s+/g, "")}Audio`});
+  // document.getElementById("soundVisualContainer").append(audioEl);
+  // let audioSource = audioContext.createMediaElementSource(audioEl);
+  // audioSource.connect(primaryGainControl);
+  let audioSource;
+
+  let audioElements = [];
+  document.getElementById("soundVisualTitle").innerText = loopData.name;
+  loopData.components.forEach(componentObj => {
+    let componentEl = createEl("div", {class: "sound-component", "data-sound-component-type": componentObj.type});
+    let nameEl = createEl("div", {class: "sound-component-name", text: componentObj.name});
+    componentEl.append(nameEl);
+    if (componentObj.type == "once") {
+      nameEl.append(createEl("span", {class: "material-symbols-outlined", text: "keyboard_tab"}));
+      componentEl.append(createEl("div", {class: "sound-component-duration", text: `${Math.round((componentObj.end - componentObj.start) * 10) / 10}s`}));
+      let timelineEl = createEl("div", {class: "custom-timeline"});
+      timelineEl.append(createEl("div", {class: "custom-timeline-progress-bar timeline-role", style: "--percent: 0%"}));
+      componentEl.append(timelineEl);
+    } else if (componentObj.type == "loop") {
+      nameEl.append(createEl("span", {class: "material-symbols-outlined", text: "laps"}));
+      componentEl.append(createEl("div", {class: "sound-component-duration", text: `${Math.round((componentObj.end - componentObj.start) * 10) / 10}s loop`}));
+      let timelineEl = createEl("div", {class: "custom-timeline"});
+      timelineEl.append(createEl("div", {class: "custom-timeline-progress-bar timeline-role", style: "--percent: 0%"}));
+      componentEl.append(timelineEl);
+    } else if (componentObj.type == "multipleexits") {
+      nameEl.append(createEl("span", {class: "material-symbols-outlined", text: "fork_right"}));
+      componentEl.append(createEl("div", {class: "sound-component-duration", text: `${Math.round((componentObj.end - componentObj.start) * 10) / 10}s`}));
+      let timelineEl = createEl("div", {class: "custom-timeline"});
+      timelineEl.append(createEl("div", {class: "custom-timeline-progress-bar timeline-role", style: "--percent: 0%"}));
+      componentObj.exits.forEach(exit => {
+        timelineEl.append(createEl("div", {class: "custom-timeline-marker", "data-marker-text": exit.goto, style: `--position: ${exit.time / (componentObj.end - componentObj.start) * 100}%`}));
+      });
+      componentEl.append(timelineEl);
+    }
+    componentEl.append(createEl("div", {class: "sound-component-state", text: "not playing"}));
+    document.getElementById("soundComponentContainer").append(componentEl);
+    document.getElementById("soundComponentContainer").append(createEl("span", {class: "material-symbols-outlined sound-component-arrow", text: "arrow_right"}));
+    componentObj.componentElement = componentEl;
+  });
+  [...document.getElementById("soundComponentContainer").children].at(-1).remove();
+
+  let currentlyPlayingIndex = null;
+  let doTasksInterval = null;
+  // const audioElement = loopData.components[componentIndex].audioElement;
+  // const audioSource = audioContext.createMediaElementSource(audioElement);
+  // audioSource.connect(audioContext.destination);
+
+  let task = {};
+  const doTasksIntervalDelay = 75;
+  function beginPlayback() {
+    if (Playback.running) {
+      return;
+    }
+    audioContext.resume();
+    currentlyPlayingIndex = 0;
+    doTasksInterval = setInterval(doTasks, doTasksIntervalDelay);
+    playAtIndex(0);
+  }
+
+  function doTasks() {
+    loopData.components.forEach(e => {
+      const timeline = e.componentElement.querySelector(".timeline-role");
+      timeline.value = Playback.currentTime - e.start;
+      let decimal = (Playback.currentTime - e.start) / (e.end - e.start);
+      if (decimal < 0) {
+        decimal = 0;
+      } else if (decimal > 1) {
+        decimal = 1;
+      }
+      timeline.style.setProperty("--percent", `${decimal * 100}%`);
+    });
+    if (Math.abs(Playback.currentTime - task.time) * 1000 <= doTasksIntervalDelay * 0.5) {
+      if (task.play !== "end") {
+        playAtIndex(task.play);
+        return;
+      }
+      Playback.stop();
+      loopData.components[currentlyPlayingIndex].componentElement.querySelector(".sound-component-state").innerText = "played";
+    }
+  }
+
+  function playAtIndex(i, bypasstime) {
+    currentlyPlayingIndex = i;
+    // audioEl.currentTime = loopData.components[currentlyPlayingIndex].start;
+    // audioEl.play();
+    if (bypasstime) {
+      Playback.play(bypasstime);
+    } else {
+      Playback.play(loopData.components[currentlyPlayingIndex].start);
+    }
+    if (currentlyPlayingIndex > 0) {
+      loopData.components[currentlyPlayingIndex - 1].componentElement.querySelector(".sound-component-state").innerText = "played";
+    }
+    switch (loopData.components[currentlyPlayingIndex].type) {
+      case "once":
+        task.time = loopData.components[currentlyPlayingIndex].end;
+        if (loopData.components[currentlyPlayingIndex].onend == false) {
+          task.play = "end";
+        } else {
+          task.play = loopData.components.findIndex(e => e.name = loopData.components[currentlyPlayingIndex].onend);
+        }
+        // if (currentlyPlayingIndex + 1 < loopData.components.length) {
+        //   loopData.components[currentlyPlayingIndex].componentElement.querySelector(".sound-component-state").innerText = "will proceed when done";
+        //   task.time = loopData.components[currentlyPlayingIndex].end;
+        //   task.play = currentlyPlayingIndex + 1;
+        // } else {
+        //   loopData.components[currentlyPlayingIndex].componentElement.querySelector(".sound-component-state").innerText = "will end when done";
+        //   task.time = loopData.components[currentlyPlayingIndex].end;
+        //   task.play = "end";
+        // }
+        break;
+      case "loop":
+        loopData.components[currentlyPlayingIndex].componentElement.querySelector(".sound-component-state").innerText = "looping";
+        task.time = loopData.components[currentlyPlayingIndex].end;
+        task.play = currentlyPlayingIndex;
+        break;
+      case "multipleexits":
+        task.time = loopData.components[currentlyPlayingIndex].end;
+        if (loopData.components[currentlyPlayingIndex].onend == false) {
+          task.play = "end";
+        } else {
+          task.play = loopData.components.findIndex(e => e.name == loopData.components[currentlyPlayingIndex].onend);
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  function advance() {
+    // if (!loopData.components[currentlyPlayingIndex].onnext.waitforend) {
+    //   playAtIndex(currentlyPlayingIndex + 1);
+    //   return;
+    // }
+    let smallest = {
+      time: loopData.components[currentlyPlayingIndex].end,
+      goto: loopData.components[currentlyPlayingIndex].onend
+    };
+    loopData.components[currentlyPlayingIndex].exits.forEach(exit => {
+      if (exit.time < smallest.time && exit.time > Playback.currentTime) {
+        smallest = exit;
+      }
+    });
+    task.time = smallest.time;
+    task.play = loopData.components.findIndex(e => e.name == smallest.goto);
+    // task.time = Math.min(...loopData.components[currentlyPlayingIndex].onnext.okplaces.filter(e => e > 3)) || Math.min(...loopData.components[currentlyPlayingIndex].onnext.okplaces);
+    // task.play = currentlyPlayingIndex + 1;
+    loopData.components[currentlyPlayingIndex].componentElement.querySelector(".sound-component-state").innerText = `will go to ${smallest.goto}`;
+  }
+
+  function stopSound() {
+    if (audioContext.state !== "running") {
+      return;
+    }
+    Playback.stop();
+    // audioEl.pause();
+    // audioEl.currentTime = 0;
+    loopData.components.forEach(e => {
+      e.componentElement.querySelector(".sound-component-state").innerText = "not playing";
+    });
+    currentlyPlayingIndex = null;
+    // audioContext.suspend();
+    clearInterval(doTasksInterval);
+    doTasksInterval = null;
+    doTasks();
+  }
+
+  const volumeControl = document.getElementById("volumeControl");
+  volumeControl.addEventListener("input", e => {
+    primaryGainControl.gain.value = volumeControl.value * 0.01 * 2;
+  });
+  primaryGainControl.gain.value = volumeControl.value * 0.01;
+
+
+  const Playback = {
+    play: function (startTime = 0) {
+      Playback.stop();
+      audioSource = audioContext.createBufferSource();
+      audioSource.connect(primaryGainControl);
+      audioSource.buffer = persistentBuffer;
+      audioSource.start(0, startTime);
+      this.currentTime = startTime;
+      const timekeeperInterval = 0.025;
+      this.timekeeper = setInterval(() => {
+        this.currentTime += timekeeperInterval;
+      }, timekeeperInterval * 1000);
+      this.running = true;
+    },
+    // pause: function () {
+    //   clearInterval(this.timekeeper);
+    // },
+    stop: function () {
+      if (!this.running) {
+        return;
+      }
+      clearInterval(this.timekeeper);
+      this.currentTime = 0;
+      audioSource.stop();
+      // audioContext.suspend();
+      this.running = false;
+    },
+    running: false
+  };
+
+  // UTILITY
+  function sleep(duration) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, duration);
+    });
+  }
+
+  function createEl(elementType, parameters = {}) {
+    const element = document.createElement(elementType);
+    Object.entries(parameters).forEach(([property, value]) => {
+      if (property == "class") {
+        if (Array.isArray(value)) {
+          for (let i = 0; i < value.length; i++) {
+            element.classList.add(value[i]);
+          }
+        } else {
+          element.className = value;
+        }
+        return;
+      }
+      if (property == "text") {
+        element.textContent = value;
+        return;
+      }
+      if (property == "innerHTML") {
+        element.innerHTML = value;
+        return;
+      }
+      if (property == "innerText") {
+        element.innerText = value;
+        return;
+      }
+      if (property.slice(0, 5) == "data_") {
+        element.setAttribute(property.replace(/_/g, "-"), value);
+        return;
+      }
+      element.setAttribute(property, value);
+    });
+    return element;
+  }
+
+  function toArray(argument) {
+    if (Array.isArray(argument)) {
+      return argument;
+    } else {
+      let array = [];
+      array.push(argument);
+      return array;
+    }
+  }
+
+  function existsBool(thingToCheck, prohibited = []) {
+    if (thingToCheck == undefined || thingToCheck == null) {
+      return false;
+    }
+    for (let i = 0; i < prohibited.length; i++) {
+      if (thingToCheck == toArray(prohibited)[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function numToWords(n) {
+    if (Number.isNaN(parseFloat(n))) {
+      return n.toString();
+    }
+    n = parseFloat(n);
+    if (n < 0 || !Number.isInteger(n)) {
+      return n.toString();
+    }
+    if (n == 0) {
+      return "zero";
+    }
+    const digits = [{num: 1, word: "one"}, {num: 2, word: "two"}, {num: 3, word: "three"}, {num: 4, word: "four"}, {num: 5, word: "five"}, {num: 6, word: "six"}, {num: 7, word: "seven"}, {num: 8, word: "eight"}, {num: 9, word: "nine"}, {num: 10, word: "ten"}, {num: 11, word: "eleven"}, {num: 12, word: "twelve"}, {num: 13, word: "thirteen"}, {num: 14, word: "fourteen"}, {num: 15, word: "fifteen"}, {num: 16, word: "sixteen"}, {num: 17, word: "seventeen"}, {num: 18, word: "eighteen"}, {num: 19, word: "nineteen"}, {num: 20, word: "NONONONO"}];
+    const tens = [{num: 20, word: 'twenty'}, {num: 30, word: 'thirty'}, {num: 40, word: 'forty'}, {num: 50, word: 'fifty'}, {num: 60, word: 'sixty'}, {num: 70, word: 'seventy'}, {num: 80, word: 'eighty'}, {num: 90, word: 'ninety'}, {num: 100, word: "NONONONO"}];
+    const powers = [{num: 100, word: 'hundred'}, {num: 1000, word: 'thousand'}, {num: 1000000, word: 'million'}, {num: 1000000000, word: 'billion'}, {num: 1000000000000, word: 'trillion'}, {num: 1000000000000000, word: 'quadrillion'}, {num: 1000000000000000000, word: 'quintillion'}, {num: 1000000000000000000000, word: 'sextillion'}, {num: 1000000000000000000000000, word: 'septillion'}, {num: 1000000000000000000000000000, word: 'octillion'}, {num: 1000000000000000000000000000000, word: 'nonillion'}, {num: 1000000000000000000000000000000000, word: 'decillion'}, {num: 1000000000000000000000000000000000000, word: 'undecillion'}];
+    const all = [digits, tens, powers];
+    const ref = [20, 100, 1000000000000000000000000000000000000];
+    let word = "";
+    let allIndex = ref.findIndex((e) => n < e);
+    while (allIndex >= 0) {
+      // console.log(allIndex, n);
+      let justRight = all[allIndex][all[allIndex].findIndex((e) => e.num > n) - 1];
+      if (justRight) {
+        // console.log(justRight);
+        if (allIndex == 2) {
+          word += numToWords(Math.floor(n / justRight.num)) + " ";
+          word += justRight.word + ", ";
+          n = n - (justRight.num * Math.floor(n / justRight.num));
+        } else {
+          if (word[word.length - 2] == ",") {
+            word = word.slice(0, -2) + " ";
+          }
+          word += justRight.word;
+          n = n - justRight.num;
+        }
+        if (allIndex == 1) {
+          word += "-";
+        }
+      }
+      if (n < 100) {allIndex--;}
+      if (n == 0) {
+        break;
+      }
+    }
+    if (word[word.length - 1] == " " || word[word.length - 1] == "-") {
+      word = word.slice(0, -1);
+    }
+    if (word[word.length - 1] == ",") {
+      word = word.slice(0, -1);
+    }
+    return word;
+  }
+
+  function changeNum(n, type) {
+    if (type == "words") {
+      return numToWords(n);
+    }
+    if (type == "string") {
+      return n.toString();
+    }
+    return n;
+  }
+
+  function firstLetterUp(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  function titleCase(string, spaces = [" ", "-", ".", ",", "-", "—", "~", "("]) {
+    let arr = [];
+    let result = "";
+    for (let i = string.length - 1; i >= 0; i--) {
+      let bool;
+      spaces.forEach(e => {
+        if (e == string[i]) {
+          bool = true;
+        }
+      });
+      if (bool) {
+        arr.push(string.slice(i + 1));
+        string = string.slice(0, i + 1);
+      }
+    }
+    arr.push(string);
+    arr.reverse();
+    arr.forEach(e => {result += firstLetterUp(e);});
+    return result;
+  }
+
+  function changeCase(string, type = "unchanged") {
+    if (type == "unchanged") {
+      return string;
+    }
+    if (type == "titlecase" || type == "title") {
+      return titleCase(string);
+    }
+    if (type == "uppercase" || type == "upper") {
+      return string.toUpperCase();
+    }
+    if (type == "lowercase" || type == "lower") {
+      return string.toLowerCase();
+    }
+    return string;
+  }
+
+  function randomId(len = 8, checkAgainst = [], iterations = 0) {
+    const maxChecks = 5000;
+    if (iterations > maxChecks) {
+      console.error("Function randomId has checked more than " + maxChecks + " ids and has given up.");
+      return;
+    }
+    let generatedId = Math.random().toString(36).substring(2, len + 2);
+    for (let i = 0; i < checkAgainst.length; i++) {
+      if (generatedId == checkAgainst[i]) {
+        generatedId = false;
+        break;
+      }
+    }
+    if (generatedId.length < len) {
+      generatedId += randomId(len - generatedId.length);
+    }
+    if (generatedId) {
+      return generatedId;
+    } else {
+      return randomId(checkAgainst, iterations + 1);
+    }
+  }
+
+  // USER
+  let colorScheme = "light";
+
+  let popperInstances = [];
+  const showEvents = ['mouseenter', 'focus'];
+  const hideEvents = ['mouseleave', 'blur'];
+  document.querySelectorAll(".has-tooltip:not(.tooltip-created)").forEach(tooltipParent => {
+    let tooltipElement = document.getElementById(tooltipParent.getAttribute("aria-describedby"));
+    let newInstance = Popper.createPopper(tooltipParent, tooltipElement, {
+      placement: "bottom",
+      modifiers: [
+        {
+          name: "offset",
+          options: {
+            offset: [0, 8]
+          }
+        }
+      ]
+    });
+    popperInstances.push(newInstance);
+    showEvents.forEach(eventName => {
+      tooltipParent.addEventListener(eventName, e => {
+        tooltipElement.setAttribute("data-state", "shown");
+        newInstance.update();
+      });
+    });
+    hideEvents.forEach(eventName => {
+      tooltipParent.addEventListener(eventName, e => {
+        tooltipElement.setAttribute("data-state", "hidden");
+      });
+    });
+    tooltipParent.classList.add("tooltip-created");
+  });
+
+  function pageTabPress(pageObj) {
+    window.location.replace(`${window.location.protocol}//${window.location.host}/project/d/${pageObj.project}/${pageObj.page}`);
+  }
+
+  function dropdownEventListenerCallback(event) {
+    for (let pathItemI = 0; pathItemI < event.path.length; pathItemI++) {
+      const pathItem = event.path[pathItemI];
+      if (pathItem == dropdownEl) {
+        return;
+      }
+    }
+    console.log("eventlistener is closing the dropdown");
+    dropdownEl.dataset.dropdownState = "closed";
+  }
+
+  function dropdownClick(dropdownInner) {
+    let dropdownEl = dropdownInner.parentElement;
+    if (dropdownEl.dataset.dropdownState == "closed") {
+      dropdownEl.dataset.dropdownState = "opened";
+      document.addEventListener("click", function dropdownEventListenerCallback(event) {
+        console.log(event.target);
+        // for (let pathItemI = 0; pathItemI < event.path.length; pathItemI++) {
+        //   const pathItem = event.path[pathItemI];
+        //   if (pathItem == dropdownEl) {
+        //     return;
+        //   }
+        // }
+        // dropdownEl.dataset.dropdownState = "closed";
+        // document.removeEventListener("click", dropdownEventListenerCallback);
+      });
+    } else {
+      dropdownEl.dataset.dropdownState = "closed";
+      document.removeEventListener("click", dropdownEventListenerCallback);
+    }
+  }
+
+  function dropdownSelection(dropdownItem) {
+    let dropdownEl = dropdownItem;
+    while (![...dropdownEl.classList].includes("dropdown")) {
+      dropdownEl = dropdownEl.parentElement;
+    }
+    if (dropdownEl == dropdownItem) {
+      return;
+    }
+    [...dropdownEl.querySelectorAll(".dropdown-item")].forEach(itemEl => {
+      itemEl.classList.remove("dropdown-active");
+    });
+    dropdownItem.classList.add("dropdown-active");
+    dropdownEl.querySelector(".dropdown-outer-text").innerText = dropdownItem.querySelector(".dropdown-item-text").innerText;
+    dropdownEl.dataset.dropdownValue = dropdownItem.dataset.dropdownValue;
+    dropdownEl.dataset.dropdownState = "closed";
+  }
+
+  function toggleProfileMenu() {}
+  function toggleSettingsMenu(argument) {
+    const settingsMenu = document.getElementById("settingsMenu");
+    if (settingsMenu.dataset.state == "hidden" || argument == "show") {
+      settingsMenu.dataset.state = "shown";
+    } else if (settingsMenu.dataset.state == "shown" || argument == "hide") {
+      settingsMenu.dataset.state = "hidden";
+    }
+  }
+  function toggleAppsMenu() {}
+  function toggleHelpMenu() {}
+
+  function darkModeToggle(isDark) {
+    if (isDark === false) {
+      document.querySelector("html").dataset.colorScheme = "light";
+      colorScheme = "light";
+    } else if (isDark === true) {
+      document.querySelector("html").dataset.colorScheme = "dark";
+      colorScheme = "dark";
+    }
+  }
+</script>
+<script>
+  function toggleMobileShade() {
+    document.getElementById("mobileShade").classList.toggle("shown");
+  }
+</script>
+</html>
